@@ -8,9 +8,18 @@ import AppKit
 /// окно разделителя исчезает вместе с процессом, и все значки снова видны (под вырезом — как без нас).
 @MainActor
 final class MenuBarDivider {
-    static let autosaveName = "SimpleIslandMenuBarDivider"
-    static var positionKey: String { "NSStatusItem Preferred Position \(autosaveName)" }
-    static var visibleKey: String { "NSStatusItem Visible \(autosaveName)" }
+    nonisolated static let autosaveName = "SimpleIslandMenuBarDivider"
+    nonisolated static let spacerAutosaveName = "SimpleIslandMenuBarSpacer"
+    /// Имя для системы (место запоминается по нему): разделитель или распорка.
+    let name: String
+    var positionKey: String { "NSStatusItem Preferred Position \(name)" }
+    var visibleKey: String { "NSStatusItem Visible \(name)" }
+    /// macOS 27, несколько экранов: вторая «распорка» левее разделителя — разворачивается и сворачивается вместе с
+    /// ним (`companion`). Одного элемента ≤ половины экрана на широком экране без выреза бывает мало (27.11).
+    var companion: MenuBarDivider?
+    var isSpacer: Bool { name == Self.spacerAutosaveName }
+
+    init(name: String = MenuBarDivider.autosaveName) { self.name = name }
 
     private(set) var item: NSStatusItem?
     private(set) var isExpanded = false
@@ -47,17 +56,18 @@ final class MenuBarDivider {
         guard !exists else { return }
         if Self.dryRun { dryCreated = true; isExpanded = false; return }
         let d = UserDefaults.standard
-        if d.object(forKey: Self.positionKey) == nil, let p = preferredPosition { d.set(Double(p), forKey: Self.positionKey) }
+        if d.object(forKey: positionKey) == nil, let p = preferredPosition { d.set(Double(p), forKey: positionKey) }
         // ⌘-утащенный за строку разделитель система помечает невидимым навсегда — возвращаем (как Hidden Bar).
-        d.set(true, forKey: Self.visibleKey)
+        d.set(true, forKey: visibleKey)
         let it = NSStatusBar.system.statusItem(withLength: MenuBarDividerMath.collapsedLength)
-        it.autosaveName = Self.autosaveName
+        it.autosaveName = name
         it.isVisible = true
         it.behavior = []          // не даём убрать ⌘-перетаскиванием
         if let b = it.button {
             b.image = Self.lineImage()
             b.image?.isTemplate = true
-            b.setAccessibilityLabel("Разделитель SimpleIsland: левее — значки в острове")
+            b.setAccessibilityLabel(isSpacer ? "Распорка SimpleIsland: вместе с разделителем прячет значки левее"
+                                             : "Разделитель SimpleIsland: левее — значки в острове")
             b.target = self
             b.action = #selector(clicked)
         }
@@ -66,6 +76,7 @@ final class MenuBarDivider {
     }
 
     func expand() {
+        companion?.expand()
         if Self.dryRun { isExpanded = dryCreated; return }
         guard let item else { return }
         let len: CGFloat
@@ -77,9 +88,19 @@ final class MenuBarDivider {
             let main = NSScreen.screens.first
             let notchMax = MenuBarScanner.notchRect()?.maxX
             // Сам в overflow (у выреза) — длина ничего не даст, а в раскрытом ряду была бы пустая дыра: черта.
-            let inOverflow = right.map { r in notchMax.map { r - 8 - ($0 + 50) < 60 } ?? false } ?? true
-            len = inOverflow ? MenuBarDividerMath.collapsedLength
-                : MenuBarDividerMath.agentLength(rightEdge: right, leftLimit: notchMax, screenWidth: main?.frame.width ?? 1440)
+            let widths = NSScreen.screens.map(\.frame.width)
+            let inOverflow: Bool
+            if widths.count > 1 {
+                // Несколько экранов (27.11): у каждого своя строка, а окно кнопки живёт на экране активной строки —
+                // длина «от края до выреза» с основного мала для широкого экрана без выреза (там всё влезало и
+                // спрятанное было видно), а с другого — случайна. Берём наибольшую, что система рисует на всех.
+                inOverflow = false
+                len = MenuBarDividerMath.agentMultiScreenLength(screenWidths: widths)
+            } else {
+                inOverflow = right.map { r in notchMax.map { r - 8 - ($0 + 50) < 60 } ?? false } ?? true
+                len = inOverflow ? MenuBarDividerMath.collapsedLength
+                    : MenuBarDividerMath.agentLength(rightEdge: right, leftLimit: notchMax, screenWidth: main?.frame.width ?? 1440)
+            }
             if !isExpanded { lastRightEdge = cgFrame?.maxX }
             if !inOverflow { item.button?.image = nil }   // пустое место, а не черта посреди него
         } else {
@@ -90,6 +111,7 @@ final class MenuBarDivider {
     }
 
     func collapse() {
+        companion?.collapse()
         if Self.dryRun { isExpanded = false; return }
         guard let item else { return }
         if item.length != MenuBarDividerMath.collapsedLength { item.length = MenuBarDividerMath.collapsedLength }
@@ -103,13 +125,14 @@ final class MenuBarDivider {
     /// Убрать разделитель: всё, что было левее, снова видно. `forgetPosition` — «Вернуть всё как было»: следующий
     /// разделитель встанет заново.
     func remove(forgetPosition: Bool) {
+        companion?.remove(forgetPosition: forgetPosition)
         if let item { NSStatusBar.system.removeStatusItem(item) }
         item = nil
         isExpanded = false
         dryCreated = false
         if forgetPosition && !Self.dryRun {
-            UserDefaults.standard.removeObject(forKey: Self.positionKey)
-            UserDefaults.standard.removeObject(forKey: Self.visibleKey)
+            UserDefaults.standard.removeObject(forKey: positionKey)
+            UserDefaults.standard.removeObject(forKey: visibleKey)
         }
     }
 

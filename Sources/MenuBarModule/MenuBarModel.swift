@@ -30,6 +30,11 @@ public final class MenuBarModel: ObservableObject {
 
     weak var context: ModuleContext?
     let divider = MenuBarDivider()
+    /// macOS 27, несколько экранов: вторая распорка левее разделителя (создаётся, только если спрятанное видно на
+    /// другом экране).
+    var spacer: MenuBarDivider?
+    /// Распорку уже пробовали ставить в этом запуске (не дёргать курсор раз за разом).
+    var spacerTried = false
     let mover = MenuBarMover()
     private var overlay: CleanupOverlayController?
     private(set) var tick: AnyCancellable?
@@ -98,6 +103,13 @@ public final class MenuBarModel: ObservableObject {
         divider.onClick = { [weak self] in self?.context?.openTab() }
         if prefs.needsDivider {
             divider.ensure(preferredPosition: nil)
+            // Распорка уже стояла (место помнит система) — вернуть её вместе с разделителем.
+            if MenuBarAgent.isActive && !MenuBarDivider.dryRun && UserDefaults.standard.bool(forKey: Self.spacerPlacedKey) {
+                let sp = MenuBarDivider(name: MenuBarDivider.spacerAutosaveName)
+                sp.ensure(preferredPosition: nil)
+                spacer = sp
+                divider.companion = sp
+            }
             divider.expand()
         }
         scheduleScan(after: 0.5)
@@ -279,6 +291,13 @@ public final class MenuBarModel: ObservableObject {
         if escaped { scheduleRestore() }
         // Пока что-то назначено — изредка смотреть строку: macOS 27 выпускает значки без событий, которые мы слышим.
         if p.needsDivider { scheduleScan(after: 20) }
+        // macOS 27, несколько экранов: назначенное спрятать видно на другом экране (широкий, без выреза — там всё
+        // влезает) — один раз за запуск поставить распорку рядом с разделителем.
+        if agentMode, inv.screenCount > 1, divider.isExpanded, !spacerTried, !mover.isBusy, tempShown == nil,
+           !Self.leakedKeys(inv, p).isEmpty {
+            spacerTried = true
+            agentPlaceSpacer()
+        }
     }
 
     private var restoreWork: DispatchWorkItem?
@@ -678,6 +697,10 @@ public final class MenuBarModel: ObservableObject {
         cancelPending()
         prefs.resetPlacements()
         divider.remove(forgetPosition: true)
+        divider.companion = nil
+        spacer = nil
+        spacerTried = false
+        UserDefaults.standard.removeObject(forKey: Self.spacerPlacedKey)
         images = [:]
         offeredRestore = nil
         announcedKeys = []
@@ -1079,6 +1102,73 @@ public final class MenuBarModel: ObservableObject {
 /// * Развёрнутый разделитель (≤ половины экрана) — система прячет всё левее него в overflow («в острове»).
 /// * Показать спрятанный: раскрыть overflow + AXPress значка (без переноса); меню закрылось — свернуть.
 extension MenuBarModel {
+    static let spacerPlacedKey = "SimpleIslandMenuBarSpacerPlaced"
+
+    /// Назначенные «в остров»/«спрятать», которые сейчас видно в строке другого экрана.
+    static func leakedKeys(_ inv: MenuBarInventory, _ p: MenuBarPrefs) -> [String] {
+        inv.items.filter { p.placement($0.key) != .bar && inv.visibleElsewhere[$0.key] != nil }.map(\.key)
+    }
+
+    /// Текст для вкладки: что видно на других экранах и почему.
+    static func leakText(_ inv: MenuBarInventory, _ p: MenuBarPrefs) -> String? {
+        let keys = leakedKeys(inv, p)
+        guard !keys.isEmpty else { return nil }
+        let names = keys.prefix(3).compactMap { inv.item(key: $0)?.displayName }.joined(separator: ", ")
+        return "На другом экране видно \(MenuBarText.icons(keys.count)) (\(names)\(keys.count > 3 ? "…" : "")): там строка шире, а macOS не даёт разделителю быть длиннее половины экрана. Помогает длинное меню приложения слева или «Разрешить в строке меню» в Настройках."
+    }
+
+    /// Поставить распорку левее разделителя на том экране, где спрятанное видно: свернуть разделитель (там тогда
+    /// хватает места — новая распорка видна у левого края), ⌘-перетащить её вплотную левее разделителя, развернуть
+    /// оба. Курсор — на том экране, при тишине ввода.
+    func agentPlaceSpacer() {
+        guard axGranted, running else { return }
+        let g = epoch
+        let sp = spacer ?? MenuBarDivider(name: MenuBarDivider.spacerAutosaveName)
+        spacer = sp
+        divider.companion = sp
+        sp.ensure(preferredPosition: nil)
+        divider.collapse()
+        let own = getpid()
+        NSLog("SimpleIsland: строка меню (27) — спрятанное видно на другом экране, ставлю распорку")
+        DispatchQueue.global(qos: .userInitiated).async {
+            Thread.sleep(forTimeInterval: 1.2)
+            let snap = MenuBarAgent.read()?.0
+            // Экран, где обе наши свёрнутые черты видны: распорка — левая (новые встают левее всех).
+            var pair: (CGRect, CGRect)?
+            for bar in snap?.others ?? [] {
+                let lines = bar.slots.filter { $0.pid == own && $0.frame.width >= 20 && $0.frame.width <= 34
+                                               && !MenuBarAgent.isHidden($0.frame, indicator: bar.indicator) }
+                    .sorted { $0.frame.minX < $1.frame.minX }
+                if lines.count >= 2 { pair = (lines[0].frame, lines[1].frame); break }
+            }
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    guard self.live(g) else { return }
+                    guard let (s, d) = pair else {
+                        NSLog("SimpleIsland: строка меню (27) — распорку не видно ни на одном экране, не ставлю")
+                        self.divider.expand(); self.scheduleScan(after: 1); return
+                    }
+                    self.mover.drag(itemWindow: 0, pid: own, item: s, targetWindow: 0, target: d, side: .leftOf,
+                                    style: .agent, typingPause: 2,
+                                    isCancelled: { [weak self] in self?.live(g) != true }) { sent in
+                        guard self.live(g) else { return }
+                        self.divider.expand()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            MainActor.assumeIsolated {
+                                self.scanNow { inv in
+                                    let left = Self.leakedKeys(inv, self.prefs)
+                                    NSLog("SimpleIsland: строка меню (27) — распорка %@, на других экранах видно %d",
+                                          sent ? "поставлена" : "не поставлена", left.count)
+                                    if sent { UserDefaults.standard.set(true, forKey: Self.spacerPlacedKey) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     static func agentMoveFailedText(_ name: String) -> String {
         "Не вышло перенести \(name): macOS 27 не переставила значок. Перетащи его с ⌘ левее черты-разделителя (30 с) — я подхвачу; или выключи его совсем: Системные настройки → Строка меню → «Разрешить в строке меню»."
     }

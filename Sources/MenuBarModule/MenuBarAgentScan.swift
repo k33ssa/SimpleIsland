@@ -39,8 +39,23 @@ public struct MenuBarAgentSnapshot: Equatable, Sendable {
     /// Кнопка системного overflow (nil — всё помещается, скрытых нет).
     public var indicator: CGRect?
     public var expanded: Bool
-    public init(slots: [MenuBarAgentSlot], indicator: CGRect?, expanded: Bool) {
-        self.slots = slots; self.indicator = indicator; self.expanded = expanded
+    /// Строки меню других экранов (macOS 27 рисует свою строку на каждом экране — у MenuBarAgent по окну на экран,
+    /// с теми же значками в том же порядке; измерено 27.11 с LG 1920 над встроенным). На широком экране без выреза
+    /// всё часто влезает — спрятанное на основном там видно.
+    public var others: [MenuBarAgentBar]
+    public init(slots: [MenuBarAgentSlot], indicator: CGRect?, expanded: Bool, others: [MenuBarAgentBar] = []) {
+        self.slots = slots; self.indicator = indicator; self.expanded = expanded; self.others = others
+    }
+}
+
+/// Строка меню одного (не основного) экрана.
+public struct MenuBarAgentBar: Equatable, Sendable {
+    /// Рамка окна строки (CG): ширина экрана × высота строки.
+    public var frame: CGRect
+    public var slots: [MenuBarAgentSlot]
+    public var indicator: CGRect?
+    public init(frame: CGRect, slots: [MenuBarAgentSlot], indicator: CGRect?) {
+        self.frame = frame; self.slots = slots; self.indicator = indicator
     }
 }
 
@@ -166,23 +181,36 @@ enum MenuBarAgent {
     nonisolated static func read() -> (MenuBarAgentSnapshot, agentPID: pid_t)? {
         guard AXIsProcessTrusted(), let agent = agentApp() else { return nil }
         let pid = agent.processIdentifier
-        var perWindow: [[MenuBarAgentSlot]] = []
-        var indicator: CGRect?
-        var expanded = false
+        // Окна — по экранам (рамка окна = строка экрана). Основной — окно в начале координат.
+        struct Bar { var frame: CGRect; var perWindow: [[MenuBarAgentSlot]] = []; var indicator: CGRect?; var expandedID = false }
+        var bars: [Bar] = []
+        var extrasIndicator: (CGRect, Bool)?
+        func barIndex(for f: CGRect) -> Int? {
+            bars.firstIndex { abs($0.frame.minX - f.minX) < 2 && abs($0.frame.minY - f.minY) < 2 }
+        }
         for root in roots(pid) {
             let isWindow = string(root, kAXRoleAttribute) == kAXWindowRole
+            let rootFrame = MenuBarScanner.axFrame(root)
+            var bi: Int?
+            if isWindow, let rf = rootFrame {
+                bi = barIndex(for: rf)
+                if bi == nil { bars.append(Bar(frame: rf)); bi = bars.count - 1 }
+            }
             var slots: [MenuBarAgentSlot] = []
             for g in children(root) {
                 let role = string(g, kAXRoleAttribute)
                 if role == kAXButtonRole, let id = string(g, kAXIdentifierAttribute), id.hasPrefix(indicatorID) {
                     // Копия в AXExtrasMenuBar бывает устаревшей — состояние берём из окна.
-                    if indicator == nil || isWindow {
-                        indicator = MenuBarScanner.axFrame(g)
-                        expanded = id == indicatorExpandedID
+                    if let bi {
+                        bars[bi].indicator = MenuBarScanner.axFrame(g)
+                        bars[bi].expandedID = id == indicatorExpandedID
+                    } else if let f = MenuBarScanner.axFrame(g) {
+                        extrasIndicator = (f, id == indicatorExpandedID)
                     }
                     continue
                 }
-                guard isWindow, role == kAXGroupRole, let f = MenuBarScanner.axFrame(g), f.width > 1 else { continue }
+                guard let bi, role == kAXGroupRole, let f = MenuBarScanner.axFrame(g), f.width > 1 else { continue }
+                _ = bi
                 guard let c = children(g).first else { continue }
                 var owner: pid_t = 0
                 AXUIElementGetPid(c, &owner)
@@ -203,11 +231,23 @@ enum MenuBarAgent {
                 }
                 slots.append(slot)
             }
-            if !slots.isEmpty { perWindow.append(slots) }
+            if let bi, !slots.isEmpty { bars[bi].perWindow.append(slots) }
         }
-        let slots = merge(perWindow)
-        return (MenuBarAgentSnapshot(slots: slots, indicator: indicator,
-                                     expanded: isExpanded(slots, indicator: indicator, byID: expanded)), pid)
+        // Кнопка из AXExtrasMenuBar (она на экране с активной строкой) — тому экрану, в чью строку попадает.
+        if let (f, exp) = extrasIndicator, let i = bars.firstIndex(where: { $0.frame.insetBy(dx: 0, dy: -4).contains(CGPoint(x: f.midX, y: f.midY)) }),
+           bars[i].indicator == nil {
+            bars[i].indicator = f; bars[i].expandedID = exp
+        }
+        let mainIndex = bars.firstIndex { abs($0.frame.minX) < 2 && abs($0.frame.minY) < 2 } ?? (bars.isEmpty ? nil : 0)
+        guard let mi = mainIndex else { return (MenuBarAgentSnapshot(slots: [], indicator: nil, expanded: false), pid) }
+        let main = bars[mi]
+        let slots = merge(main.perWindow)
+        let others = bars.indices.filter { $0 != mi }.map { i in
+            MenuBarAgentBar(frame: bars[i].frame, slots: merge(bars[i].perWindow), indicator: bars[i].indicator)
+        }
+        return (MenuBarAgentSnapshot(slots: slots, indicator: main.indicator,
+                                     expanded: isExpanded(slots, indicator: main.indicator, byID: main.expandedID),
+                                     others: others), pid)
     }
 
     /// Одни и те же места приходят из двух окон (в одном — AXApplication владельца, в другом — AXButton с
@@ -276,10 +316,33 @@ extension MenuBarInventory {
                 .flatMap { abs($0.frame.midX - d.midX) <= max(8, d.width / 2) ? $0 : nil }
         }
         let dividerInBar = dividerSlot.map { !MenuBarAgent.isHidden($0.frame, indicator: snap.indicator) } ?? false
-        let foreign = snap.slots.filter { s in
+        let isForeign: (MenuBarAgentSlot) -> Bool = { s in
             s.pid != input.ownPID && s.pid > 0
                 && !(input.apps[s.pid]?.bundleId.map(ownBundles.contains) ?? false)
                 && !(input.apps[s.pid]?.bundleId?.hasPrefix("local.simpleisland") ?? false)
+        }
+        var foreign = snap.slots.filter(isForeign)
+        // Значки, которых на основном экране нет совсем (при развёрнутом разделителе у скрытых бывает «ни слота, ни
+        // кнопки» — измерено 27.11), но есть на другом экране: скрыты на основном. Скрытые — всегда крайние левые
+        // («префикс»), значит у процесса это его крайние левые значки.
+        var forcedHidden = Set<Int>()
+        var mainCount = Dictionary(grouping: foreign, by: \.pid).mapValues(\.count)
+        for bar in snap.others {
+            for (pid, group) in Dictionary(grouping: bar.slots.filter(isForeign), by: \.pid) {
+                let have = mainCount[pid] ?? 0
+                guard group.count > have else { continue }
+                let leftmost = group.sorted { $0.frame.midX < $1.frame.midX }.prefix(group.count - have)
+                for g in leftmost.reversed() {
+                    let x = (snap.indicator?.minX ?? input.notch?.maxX ?? 0) - g.frame.width
+                    var s = MenuBarAgentSlot(pid: pid, frame: CGRect(x: x, y: 0, width: g.frame.width, height: 33),
+                                             title: g.title, detail: g.detail, identifier: g.identifier,
+                                             order: 10_000 + foreign.count)
+                    s.frame.origin.x -= CGFloat(forcedHidden.count) * 0.01   // порядок левее уже известных
+                    forcedHidden.insert(foreign.count)
+                    foreign.append(s)
+                }
+                mainCount[pid] = group.count
+            }
         }
         // Порядковые номера значков одного процесса: справа налево, в одной точке — по порядку в AX.
         var ordinals: [Int: Int] = [:]
@@ -302,7 +365,7 @@ extension MenuBarInventory {
             if isCC { kind = .controlCenter(module: module) }
             else if let b = app?.bundleId, let sys = MenuBarNames.systemBundles[b] { kind = .system(sys) }
             else { kind = .app }
-            let hidden = MenuBarAgent.isHidden(s.frame, indicator: snap.indicator)
+            let hidden = forcedHidden.contains(idx) || MenuBarAgent.isHidden(s.frame, indicator: snap.indicator)
             // Скрытое системой при нашем разделителе — «в острове» (переносом мы кладём значки именно в overflow);
         // без разделителя — «под вырезом» (просто не влезло).
         let section: MenuBarSection = hidden ? (input.dividerExpanded ? .island : .notch) : .visible
@@ -335,6 +398,22 @@ extension MenuBarInventory {
         inv.overflowIndicator = snap.indicator
         inv.overflowExpanded = snap.expanded
         inv.dividerInOverflow = dividerSlot != nil && !dividerInBar
+        // Видно ли значок на других экранах: у процесса — тот же порядок справа налево на каждом экране.
+        inv.screenCount = 1 + snap.others.count
+        for (bi, bar) in snap.others.enumerated() {
+            let groups = Dictionary(grouping: bar.slots.filter(isForeign), by: \.pid)
+            for (pid, group) in groups {
+                let ranked = group.sorted { $0.frame.midX > $1.frame.midX }
+                let mine = inv.items.filter { $0.pid == pid }.sorted { $0.altKeys.last ?? "" < $1.altKeys.last ?? "" }
+                for it in mine {
+                    guard let r = it.altKeys.last.flatMap({ Int($0.split(separator: "#").last ?? "") }), r < ranked.count
+                    else { continue }
+                    if !MenuBarAgent.isHidden(ranked[r].frame, indicator: bar.indicator) {
+                        inv.visibleElsewhere[it.key, default: []].insert(bi + 1)
+                    }
+                }
+            }
+        }
         return inv
     }
 }

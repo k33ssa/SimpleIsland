@@ -40,6 +40,10 @@ struct MenuBarTabView: View {
         let items = MenuBarPlanner.islandItems(model.inventory, model.prefs)
         VStack(alignment: .leading, spacing: 10) {
             if !model.axGranted { AccessBanner(model: model) }
+            if let leak = MenuBarModel.leakText(model.inventory, model.prefs) {
+                Text(leak).font(theme.font(11.5, .medium)).foregroundStyle(IslandPalette.warmText(theme))
+                    .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+            }
             if items.isEmpty {
                 EmptyIconsTile(model: model)
             } else {

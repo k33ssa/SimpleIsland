@@ -242,6 +242,10 @@ public struct MenuBarInventory: Equatable, Sendable {
     /// macOS 27: наш разделитель есть, но сам в overflow (новые значки система ставит левее всех) — ничего не прячет,
     /// пока его не перенести в строку.
     public var dividerInOverflow = false
+    /// macOS 27, несколько экранов: ключ значка → номера экранов (1… — не основной), где он сейчас виден в строке.
+    public var visibleElsewhere: [String: Set<Int>] = [:]
+    /// Сколько экранов со своей строкой меню (по окнам MenuBarAgent).
+    public var screenCount = 1
 
     public static let empty = MenuBarInventory(items: [], dividerFrame: nil, ghosts: 0)
 

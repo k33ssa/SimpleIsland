@@ -21,6 +21,7 @@ public final class MenuBarIslandModule: IslandModule {
     public var tabEnabledByDefault: Bool { true }
     public var expandedHeight: CGFloat {
         MenuBarTabView.height(items: MenuBarPlanner.islandItems(model.inventory, model.prefs).count, axGranted: model.axGranted)
+            + (MenuBarModel.leakText(model.inventory, model.prefs) != nil ? 40 : 0)
     }
 
     public let model = MenuBarModel()

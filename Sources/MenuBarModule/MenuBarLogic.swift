@@ -179,6 +179,11 @@ public enum MenuBarDividerMath {
         guard let r = rightEdge, let l = leftLimit else { return cap }
         return min(cap, max(60, r - 8 - (l + 50)))
     }
+    /// macOS 27, несколько экранов: «половина самого узкого экрана − 20» — элемент шире половины экрана система не рисует
+    /// (на 1728 — 844, окно 860; на LG 1920 при этом разделитель виден и прячет левее себя — измерено 27.11).
+    public static func agentMultiScreenLength(screenWidths: [CGFloat]) -> CGFloat {
+        max(60, (screenWidths.min() ?? 1440) / 2 - 20)
+    }
     /// Свёрнутый: тонкая черта, видна только пока идёт перенос или временный показ.
     public static let collapsedLength: CGFloat = 12
 }

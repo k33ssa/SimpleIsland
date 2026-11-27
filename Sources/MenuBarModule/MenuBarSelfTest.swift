@@ -52,6 +52,7 @@ public enum MenuBarSelfTest {
         agentDivider()
         agentMerge()
         agentMover()
+        agentMultiScreen()
         check(MenuBarMover.postedEvents == 0, "в систему не отправлено ни одного события", "\(MenuBarMover.postedEvents)")
         if live { printLive() }
         if live && CommandLine.arguments.contains("--live-move") { liveMove() }
@@ -1043,6 +1044,81 @@ public enum MenuBarSelfTest {
               "неудача на 27 — подсказка про «Разрешить в строке меню»")
     }
 
+    // MARK: macOS 27 — два экрана (27.11.2026: встроенный 1728 с вырезом + LG 4K 1920 без выреза, над ним справа)
+
+    nonisolated static func ls(_ pid: pid_t, _ x: CGFloat, _ w: CGFloat) -> MenuBarAgentSlot {
+        MenuBarAgentSlot(pid: pid, frame: CGRect(x: x, y: -1080, width: w, height: 30))
+    }
+
+    static let multiApps: [pid_t: MenuBarAppInfo] = {
+        var a = agentApps
+        a[50001] = .init(bundleId: "app.amnl.lyrics.bridge", name: "SimpleLyrics Bridge")
+        a[50002] = .init(bundleId: "com.k33ssa.SimpleFaceitWidget", name: "SimpleFaceit")
+        return a
+    }()
+
+    static func agentMultiScreen() {
+        print("— macOS 27: два экрана — спрятанное на основном видно на LG")
+        let cc: [MenuBarAgentSlot] = [
+            slot(agentPID, 1428, 22, id: "com.apple.menuextra.focusmode"), slot(agentPID, 1466, 26, id: "com.apple.menuextra.battery"),
+            slot(agentPID, 1508, 22, id: "com.apple.menuextra.wifi"), slot(agentPID, 1546, 26, id: "com.apple.menuextra.controlcenter"),
+            slot(agentPID, 1588, 119, id: "com.apple.menuextra.clock")]
+        let lgCC = [ls(agentPID, 2624, 22), ls(agentPID, 2662, 26), ls(agentPID, 2704, 22), ls(agentPID, 2742, 26), ls(agentPID, 2784, 119)]
+        // A: разделитель свёрнут (12). Основной: префикс скрыт системой; LG: видно всё.
+        let mainA: [MenuBarAgentSlot] = [
+            slot(36412, 905, 177, title: "Battery 59%"), slot(57826, 1042, 40), slot(66288, 1042, 40), slot(35915, 1044, 38),
+            slot(50001, 1046, 36), slot(36408, 1048, 34), slot(37313, 1050, 32),
+            slot(50002, 1090, 56), slot(ownPID, 1146, 28), slot(36412, 1174, 39), slot(55047, 1213, 38), slot(ownPID, 1251, 38),
+            slot(55809, 1289, 30), slot(40001, 1319, 31), slot(36412, 1350, 26), slot(36415, 1376, 44)] + cc
+        let lgA: [MenuBarAgentSlot] = [
+            ls(37313, 1889, 32), ls(66288, 1921, 40), ls(36408, 1961, 34), ls(50001, 1995, 36), ls(35915, 2031, 38),
+            ls(57826, 2069, 40), ls(36412, 2109, 177), ls(50002, 2286, 56), ls(ownPID, 2342, 28), ls(36412, 2370, 39),
+            ls(55047, 2409, 38), ls(ownPID, 2447, 38), ls(55809, 2485, 30), ls(40001, 2515, 31), ls(36412, 2546, 26),
+            ls(36415, 2572, 44)] + lgCC
+        let lgFrame = CGRect(x: 1004, y: -1080, width: 1920, height: 30)
+        let ind = CGRect(x: 1065, y: 1, width: 18, height: 30)
+        func parse(_ main: [MenuBarAgentSlot], _ mainInd: CGRect?, _ lg: [MenuBarAgentSlot], _ lgInd: CGRect?, expanded: Bool)
+            -> MenuBarInventory {
+            MenuBarInventory.parseAgent(MenuBarAgentInput(
+                snapshot: MenuBarAgentSnapshot(slots: main, indicator: mainInd, expanded: false,
+                                               others: [MenuBarAgentBar(frame: lgFrame, slots: lg, indicator: lgInd)]),
+                apps: multiApps, ownPID: ownPID, agentPID: agentPID, dividerFrame: CGRect(x: 1146, y: 0, width: 28, height: 33),
+                dividerExpanded: expanded, notch: CGRect(x: 771.5, y: 0, width: 185, height: 32)))
+        }
+        let a = parse(mainA, ind, lgA, nil, expanded: true)
+        printTable(a)
+        let hiddenNames = Set(a.items.filter { $0.section != .visible }.map(\.displayName))
+        check(a.screenCount == 2 && hiddenNames == ["iStat Menus", "Telegram", "Claude", "ArtCraft Launcher",
+                                                    "SimpleLyrics Bridge", "ScreenTab", "Ollama"],
+              "основной: скрыт префикс из 7", "\(hiddenNames)")
+        let leaked = Set(a.items.filter { a.visibleElsewhere[$0.key] != nil && $0.section != .visible }.map(\.displayName))
+        check(leaked == hiddenNames, "все 7 скрытых на основном видно на LG (жалоба 27.11)", "\(leaked)")
+        check(a.visibleElsewhere[a.items.first { $0.displayName == "Vafa" }?.key ?? "-"] == [1], "видимое везде — видно и на LG")
+        var p = MenuBarPrefs()
+        for it in a.items where it.section != .visible { p.placements[it.key] = .island }
+        check(MenuBarModel.leakedKeys(a, p).count == 7 && MenuBarModel.leakText(a, p)?.contains("другом экране") == true,
+              "назначенные «в остров» и видные на LG — во вкладке честная строка")
+        check(MenuBarModel.leakedKeys(a, MenuBarPrefs()).isEmpty, "без назначений протечек нет")
+        // B: разделитель развёрнут до 844 (окно 860; на LG 1510…2370, кнопка overflow LG 1485). На основном скрытых
+        // слотов нет совсем, кнопки нет; на LG часть скрытых — в ряду у кнопки, часть — без слотов.
+        let mainB: [MenuBarAgentSlot] = [slot(36412, 1174, 39), slot(55047, 1213, 38), slot(ownPID, 1251, 38),
+            slot(55809, 1289, 30), slot(40001, 1319, 31), slot(36412, 1350, 26), slot(36415, 1376, 44)] + cc
+        let lgB: [MenuBarAgentSlot] = [ls(36412, 1325, 177), ls(50002, 1446, 56), ls(57826, 1462, 40), ls(35915, 1464, 38),
+            ls(50001, 1466, 36), ls(ownPID, 1510, 860), ls(36412, 2370, 39), ls(55047, 2409, 38), ls(ownPID, 2447, 38),
+            ls(55809, 2485, 30), ls(40001, 2515, 31), ls(36412, 2546, 26), ls(36415, 2572, 44)] + lgCC
+        let b = parse(mainB, nil, lgB, CGRect(x: 1485, y: -1079, width: 18, height: 27), expanded: true)
+        let bHidden = Set(b.items.filter { $0.section != .visible }.map(\.displayName))
+        check(bHidden == ["iStat Menus", "SimpleFaceit", "Telegram", "ArtCraft Launcher", "SimpleLyrics Bridge"],
+              "развёрнут: значки, которых нет на основном, взяты с LG как скрытые", "\(bHidden)")
+        check(b.items.filter { $0.section != .visible }.allSatisfy { $0.section == .island }, "при развёрнутом разделителе — «в острове»")
+        check(b.visibleElsewhere.keys.allSatisfy { k in b.item(key: k)?.section == .visible },
+              "на LG ничего из скрытого не видно")
+        check(Set(b.items.map(\.key)).count == b.items.count, "ключи уникальны и с добавленными")
+        check(MenuBarDividerMath.agentMultiScreenLength(screenWidths: [1728, 1920]) == 844
+              && MenuBarDividerMath.agentMultiScreenLength(screenWidths: [1440, 2560]) == 700,
+              "длина при нескольких экранах — половина самого узкого − 20")
+    }
+
     // MARK: macOS 27 — живая проба переноса своими значками
 
     private static func spin(_ sec: Double) {
@@ -1133,6 +1209,8 @@ public enum MenuBarSelfTest {
         let inv = MenuBarScanner.scanNow(dividerWindowID: nil, dividerLength: nil)
         print("  источник: \(inv.source.rawValue)\(MenuBarAgent.isActive ? " (macOS 27, MenuBarAgent)" : ""), overflow: \(inv.overflowIndicator.map { "кнопка x=\(Int($0.minX)), \(inv.overflowExpanded ? "раскрыт" : "свёрнут")" } ?? "нет")")
         printTable(inv)
+        let elsewhere = inv.items.filter { $0.section != .visible && inv.visibleElsewhere[$0.key] != nil }.map(\.displayName)
+        print("  экранов со строкой меню: \(inv.screenCount); скрытые на основном, но видные на другом экране: \(elsewhere.isEmpty ? "нет" : elsewhere.joined(separator: ", "))")
         print("  призраков: \(inv.ghosts), копий на других экранах: \(inv.otherScreenCopies), вырез: \(MenuBarScanner.notchRect().map { "\($0)" } ?? "нет")")
     }
 }
