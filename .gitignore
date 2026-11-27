@@ -1,0 +1,7 @@
+.build*/
+build/
+dist/
+*.app/
+.swiftpm/
+.DS_Store
+posts.md

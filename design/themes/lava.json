@@ -1,0 +1,59 @@
+{
+  "id": "lava",
+  "name": "Лава",
+  "subtitle": "расплавленное свечение",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#000000",
+      "#120300",
+      "#2B0800"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#FF5A00",
+      "#FF2A00",
+      "#FFC24A"
+    ],
+    "opacity": 0.7,
+    "radius": 70
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#FFC8A6BF",
+    "tertiary": "#FFC8A67A"
+  },
+  "accent": "#FF6A1A",
+  "accent2": "#FFD24A",
+  "controlFill": "#FF782814",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.46,
+    "damping": 0.74
+  }
+}

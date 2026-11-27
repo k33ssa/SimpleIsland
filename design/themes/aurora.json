@@ -1,0 +1,64 @@
+{
+  "id": "aurora",
+  "name": "Аврора",
+  "subtitle": "для стримов",
+  "background": {
+    "type": "solid",
+    "colors": [
+      "#000000"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "conic",
+    "colors": [
+      "#FFB36E",
+      "#FF3D7F",
+      "#A879FF",
+      "#4AA8FF",
+      "#39D98A",
+      "#FFB36E"
+    ],
+    "width": 1.5,
+    "animated": true
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#FF3D7F",
+      "#A879FF",
+      "#FF7A45"
+    ],
+    "opacity": 0.45,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#FFFFFFB8",
+    "tertiary": "#FFFFFF7A"
+  },
+  "accent": "#FF3D7F",
+  "accent2": "#A879FF",
+  "controlFill": "#FFFFFF12",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.42,
+    "damping": 0.78
+  }
+}

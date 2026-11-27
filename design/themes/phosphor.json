@@ -1,0 +1,57 @@
+{
+  "id": "phosphor",
+  "name": "Фосфор",
+  "subtitle": "ретро-терминал",
+  "background": {
+    "type": "solid",
+    "colors": [
+      "#020A04"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "solid",
+    "colors": [
+      "#6DFF9A66"
+    ],
+    "width": 1,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#6DFF9A"
+    ],
+    "opacity": 0.25,
+    "radius": 40
+  },
+  "text": {
+    "primary": "#6DFF9A",
+    "secondary": "#6DFF9AB3",
+    "tertiary": "#6DFF9A73"
+  },
+  "accent": "#6DFF9A",
+  "accent2": "#2BD46A",
+  "controlFill": "#6DFF9A14",
+  "font": {
+    "family": "mono",
+    "design": "monospaced"
+  },
+  "shape": {
+    "cornerRadius": 18,
+    "earRadius": 16,
+    "compactCornerRadius": 10
+  },
+  "effects": {
+    "scanlines": true,
+    "noise": 0.04,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.3,
+    "damping": 1.0
+  }
+}

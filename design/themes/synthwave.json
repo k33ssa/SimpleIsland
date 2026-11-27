@@ -1,0 +1,60 @@
+{
+  "id": "synthwave",
+  "name": "Синтвейв",
+  "subtitle": "кассетный закат",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#12021F",
+      "#2A0640",
+      "#4A0A5C"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "solid",
+    "colors": [
+      "#FF2E97"
+    ],
+    "width": 1,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#FF2E97",
+      "#00E5FF"
+    ],
+    "opacity": 0.5,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#EFFDFF",
+    "secondary": "#FF9AD0D9",
+    "tertiary": "#FF9AD08C"
+  },
+  "accent": "#FF2E97",
+  "accent2": "#00E5FF",
+  "controlFill": "#FF2E971A",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.38,
+    "damping": 0.72
+  }
+}

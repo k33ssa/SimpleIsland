@@ -1,0 +1,53 @@
+{
+  "id": "paper",
+  "name": "Бумага",
+  "subtitle": "светлая",
+  "background": {
+    "type": "solid",
+    "colors": [
+      "#F6F5F2"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": false
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "none",
+    "colors": [],
+    "opacity": 0.55,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#111111",
+    "secondary": "#111111B3",
+    "tertiary": "#1111117A"
+  },
+  "accent": "#111111",
+  "accent2": "#6B6B6B",
+  "controlFill": "#0000000D",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.42,
+    "damping": 0.78
+  }
+}

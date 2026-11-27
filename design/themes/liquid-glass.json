@@ -1,0 +1,56 @@
+{
+  "id": "liquid-glass",
+  "name": "Жидкое стекло",
+  "subtitle": "в духе macOS 26",
+  "background": {
+    "type": "glass",
+    "colors": [
+      "#1E183061",
+      "#FFFFFF1A"
+    ],
+    "angle": 180,
+    "blur": 26,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "solid",
+    "colors": [
+      "#FFFFFF59"
+    ],
+    "width": 1,
+    "animated": false
+  },
+  "glow": {
+    "source": "none",
+    "colors": [],
+    "opacity": 0.55,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#FFFFFFBF",
+    "tertiary": "#FFFFFF80"
+  },
+  "accent": "#FFFFFF",
+  "accent2": "#FFFFFFB3",
+  "controlFill": "#FFFFFF1F",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": true,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.45,
+    "damping": 0.8
+  }
+}

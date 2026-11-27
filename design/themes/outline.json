@@ -1,0 +1,57 @@
+{
+  "id": "outline",
+  "name": "Контур",
+  "subtitle": "только линия",
+  "background": {
+    "type": "glass",
+    "colors": [
+      "#00000094"
+    ],
+    "angle": 180,
+    "blur": 18,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "solid",
+    "colors": [
+      "#7DF9FF"
+    ],
+    "width": 1,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#7DF9FF"
+    ],
+    "opacity": 0.22,
+    "radius": 30
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#C9FDFFB8",
+    "tertiary": "#C9FDFF7A"
+  },
+  "accent": "#7DF9FF",
+  "accent2": "#2A9DFF",
+  "controlFill": "#7DF9FF14",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.42,
+    "damping": 0.78
+  }
+}

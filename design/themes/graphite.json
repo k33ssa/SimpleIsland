@@ -1,0 +1,53 @@
+{
+  "id": "graphite",
+  "name": "Графит",
+  "subtitle": "мягкий матовый",
+  "background": {
+    "type": "solid",
+    "colors": [
+      "#1E1F22"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "none",
+    "colors": [],
+    "opacity": 0.55,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#ECECEE",
+    "secondary": "#9A9CA3",
+    "tertiary": "#9A9CA399"
+  },
+  "accent": "#E8E8EA",
+  "accent2": "#9A9CA3",
+  "controlFill": "#FFFFFF0F",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.05,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.5,
+    "damping": 0.95
+  }
+}

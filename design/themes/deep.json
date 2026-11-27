@@ -1,0 +1,58 @@
+{
+  "id": "deep",
+  "name": "Глубина",
+  "subtitle": "под водой",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#001820",
+      "#003441",
+      "#004B5A"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#00D1C1",
+      "#2A9DFF"
+    ],
+    "opacity": 0.42,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#A8FFF0B3",
+    "tertiary": "#A8FFF073"
+  },
+  "accent": "#3EF0D8",
+  "accent2": "#2A9DFF",
+  "controlFill": "#A8FFF014",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.03,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.58,
+    "damping": 0.68
+  }
+}

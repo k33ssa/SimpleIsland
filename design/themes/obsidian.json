@@ -1,0 +1,53 @@
+{
+  "id": "obsidian",
+  "name": "Обсидиан",
+  "subtitle": "по умолчанию",
+  "background": {
+    "type": "solid",
+    "colors": [
+      "#000000"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "artwork",
+    "colors": [],
+    "opacity": 0.55,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#FFFFFFB8",
+    "tertiary": "#FFFFFF7A"
+  },
+  "accent": "#FF7A45",
+  "accent2": "#FF3D7F",
+  "controlFill": "#FFFFFF12",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.42,
+    "damping": 0.78
+  }
+}

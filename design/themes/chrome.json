@@ -1,0 +1,66 @@
+{
+  "id": "chrome",
+  "name": "Хром",
+  "subtitle": "жидкий металл",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#111215",
+      "#1C1E23",
+      "#2C2F36"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "conic",
+    "colors": [
+      "#FFFFFF",
+      "#6F747E",
+      "#E9EDF3",
+      "#3F434B",
+      "#D5DBE4",
+      "#575C66",
+      "#F4F7FB",
+      "#FFFFFF"
+    ],
+    "width": 1.5,
+    "animated": true
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#C9D3E0"
+    ],
+    "opacity": 0.22,
+    "radius": 50
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#D5DBE4B8",
+    "tertiary": "#D5DBE47A"
+  },
+  "accent": "#F4F7FB",
+  "accent2": "#6F747E",
+  "controlFill": "#FFFFFF14",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": true,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.4,
+    "damping": 0.8
+  }
+}

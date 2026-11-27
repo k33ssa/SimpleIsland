@@ -1,0 +1,57 @@
+{
+  "id": "cosmos",
+  "name": "Космос",
+  "subtitle": "звёзды и туманность",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#06041A",
+      "#110A30"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#7B5CFF",
+      "#FF5CC8"
+    ],
+    "opacity": 0.4,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#CBBFFFBF",
+    "tertiary": "#CBBFFF80"
+  },
+  "accent": "#B9A6FF",
+  "accent2": "#FF7AD9",
+  "controlFill": "#CBBFFF14",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.12,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.5,
+    "damping": 0.8
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "pixel",
+  "name": "Пиксель",
+  "subtitle": "8 бит",
+  "background": {
+    "type": "solid",
+    "colors": [
+      "#14141F"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "none",
+    "colors": [],
+    "opacity": 0.55,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFCC00",
+    "secondary": "#9FA3FF",
+    "tertiary": "#9FA3FFA6"
+  },
+  "accent": "#FFCC00",
+  "accent2": "#FF4D6D",
+  "controlFill": "#2C2C44",
+  "font": {
+    "family": "mono",
+    "design": "monospaced"
+  },
+  "shape": {
+    "cornerRadius": 12,
+    "earRadius": 12,
+    "compactCornerRadius": 8
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": true
+  },
+  "spring": {
+    "response": 0.3,
+    "damping": 1.0
+  }
+}

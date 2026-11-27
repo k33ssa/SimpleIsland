@@ -1,0 +1,58 @@
+{
+  "id": "white-nights",
+  "name": "Белые ночи",
+  "subtitle": "петербургская",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#0B1736",
+      "#142A5C",
+      "#1D3A78"
+    ],
+    "angle": 180,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#FFB547",
+      "#3B5BDB"
+    ],
+    "opacity": 0.4,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#DFE7FFB3",
+    "tertiary": "#DFE7FF73"
+  },
+  "accent": "#FFB547",
+  "accent2": "#FFE0A0",
+  "controlFill": "#DFE7FF14",
+  "font": {
+    "family": "system",
+    "design": "serif"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.45,
+    "damping": 0.82
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "hologram",
+  "name": "Голограмма",
+  "subtitle": "переливающаяся фольга",
+  "background": {
+    "type": "gradient",
+    "colors": [
+      "#0A0B12",
+      "#0E0D18"
+    ],
+    "angle": 115,
+    "blur": 0,
+    "coreBlack": true
+  },
+  "rim": {
+    "type": "conic",
+    "colors": [
+      "#9FFCFF",
+      "#FF9FF3",
+      "#B8A6FF",
+      "#D6FF9F",
+      "#9FFCFF"
+    ],
+    "width": 1.5,
+    "animated": true
+  },
+  "glow": {
+    "source": "fixed",
+    "colors": [
+      "#9FFCFF",
+      "#FF9FF3",
+      "#D6FF9F"
+    ],
+    "opacity": 0.35,
+    "radius": 60
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#FFFFFFB8",
+    "tertiary": "#FFFFFF7A"
+  },
+  "accent": "#9FFCFF",
+  "accent2": "#FF9FF3",
+  "controlFill": "#FFFFFF14",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.06,
+    "highlight": true,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.42,
+    "damping": 0.78
+  }
+}

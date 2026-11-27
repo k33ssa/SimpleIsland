@@ -1,0 +1,54 @@
+{
+  "id": "chameleon",
+  "name": "Хамелеон",
+  "subtitle": "цвет из обложки",
+  "background": {
+    "type": "glass",
+    "colors": [
+      "#0000004D"
+    ],
+    "angle": 180,
+    "blur": 40,
+    "coreBlack": true,
+    "source": "artwork"
+  },
+  "rim": {
+    "type": "none",
+    "colors": [],
+    "width": 1.5,
+    "animated": false
+  },
+  "glow": {
+    "source": "artwork",
+    "colors": [],
+    "opacity": 0.9,
+    "radius": 80
+  },
+  "text": {
+    "primary": "#FFFFFF",
+    "secondary": "#FFFFFFB8",
+    "tertiary": "#FFFFFF7A"
+  },
+  "accent": "#FFFFFF",
+  "accent2": "#FFFFFFB3",
+  "controlFill": "#FFFFFF1A",
+  "font": {
+    "family": "system",
+    "design": "default"
+  },
+  "shape": {
+    "cornerRadius": 38,
+    "earRadius": 16,
+    "compactCornerRadius": 14
+  },
+  "effects": {
+    "scanlines": false,
+    "noise": 0.0,
+    "highlight": false,
+    "pixelated": false
+  },
+  "spring": {
+    "response": 0.42,
+    "damping": 0.78
+  }
+}
