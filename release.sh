@@ -30,7 +30,7 @@ A Dynamic Island for the Mac notch: now playing with synced lyrics, today at a g
 |---|---|---|
 | macOS 15+ (Apple Silicon + Intel) | [$NAME-$VER.zip](https://github.com/k33ssa/$NAME/releases/download/v$VER/$NAME-$VER.zip) | \`brew install --cask k33ssa/tap/$LOWER\` |
 
-**Update:** \`brew upgrade --cask $LOWER\`. Automatic background updates: \`brew tap homebrew/autoupdate && brew autoupdate start --upgrade --cleanup\`.
+**Update:** \`brew upgrade --cask $LOWER\`. Automatic background updates: \`brew tap DomT4/autoupdate && brew trust DomT4/autoupdate && brew autoupdate start --upgrade --cleanup\`.
 
 **Zip without Homebrew:** unzip, move $NAME.app to Applications, open it. The app is free and not notarized; if macOS refuses to open it, run \`xattr -dr com.apple.quarantine /Applications/$NAME.app\` once.
 NOTES

@@ -47,7 +47,7 @@ Settings stay in `~/Library/Application Support/SimpleIsland`; add `--purge` aft
 **Auto-update.** `brew upgrade` picks up new versions; to let Homebrew update everything by itself in the background (once a day), run once:
 
 ```bash
-brew tap homebrew/autoupdate && brew autoupdate start --upgrade --cleanup
+brew tap DomT4/autoupdate && brew trust DomT4/autoupdate && brew autoupdate start --upgrade --cleanup
 ```
 
 ## What it does
@@ -147,7 +147,7 @@ brew trust k33ssa/tap && brew install --cask k33ssa/tap/simpleisland
 ```
 
 - Обновление: `brew upgrade --cask simpleisland`
-- **Автообновление** в фоне (раз в сутки), выполнить один раз: `brew tap homebrew/autoupdate && brew autoupdate start --upgrade --cleanup`
+- **Автообновление** в фоне (раз в сутки), выполнить один раз: `brew tap DomT4/autoupdate && brew trust DomT4/autoupdate && brew autoupdate start --upgrade --cleanup`
 - Удаление: `brew uninstall --cask simpleisland`
 
 Без Homebrew: скачать zip, перенести SimpleIsland.app в «Программы» и открыть. Приложение бесплатное и не заверено Apple; если macOS не даёт его открыть, один раз выполнить `xattr -dr com.apple.quarantine /Applications/SimpleIsland.app`.
