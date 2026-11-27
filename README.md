@@ -20,9 +20,10 @@ All versions: [Releases](https://github.com/k33ssa/SimpleIsland/releases).
 
 ## Install / Update
 
-**Homebrew** (recommended, updates with `brew upgrade`):
+**Homebrew** (recommended, updates with `brew upgrade`). Homebrew 7+ asks you to trust a third-party tap once:
 
 ```bash
+brew trust k33ssa/tap
 brew install --cask k33ssa/tap/simpleisland
 ```
 
@@ -140,7 +141,10 @@ dynamic island mac, macbook notch app, notch utility, notchnook alternative, alc
 
 ### Установка и обновление
 
+Homebrew 7+ один раз просит довериться стороннему tap:
+
 ```bash
+brew trust k33ssa/tap
 brew install --cask k33ssa/tap/simpleisland
 ```
 
