@@ -98,16 +98,6 @@ cd SimpleIsland
 
 Self-tests run without windows or permissions: `swift build && .build/debug/SimpleIsland --selftest-core all` (also `--selftest-media`, `--selftest-hud`, `--selftest-shelf`, `--selftest-agents`, `--selftest-today`, `--selftest-settings`, `--selftest-catalog`, `--selftest-menubar`).
 
-### For teams using Sten
-
-The island has an optional **Meetings** widget for teams that run a self-hosted Sten meeting-minutes server: record a meeting from the notch and get the summary, decisions and tasks per person. It is not part of the regular build. To install a build with it:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/k33ssa/SimpleIsland/main/install.sh | bash -s -- --with-meetings --meetings-server https://<your-sten-host>/sten
-```
-
-The address is only a default and can be changed in the widget. The microphone permission is requested only in this build.
-
 ## How it works
 
 - A borderless panel above the menu bar, drawn with SwiftUI and Core Animation; it follows displays, sleep and full-screen spaces.
@@ -165,14 +155,6 @@ brew trust k33ssa/tap && brew install --cask k33ssa/tap/simpleisland
 - **Индикаторы** — громкость, яркость, подсветка, зарядка, наушники, раскладка, Caps Lock, камера и микрофон — вокруг выреза вместо системных окошек.
 - **Значки строки меню** — лишние значки в остров, спрятать или закрыть; видно, что macOS прячет под вырезом.
 - **Каталог виджетов** — эквалайзер Музыки со спектром, статус [Vafa](https://github.com/k33ssa/vafa).
-
-### Для команд со Sten
-
-Виджет «Встречи» (запись встречи и протокол на своём сервере Sten) в обычную сборку не входит. Поставить сборку с ним:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/k33ssa/SimpleIsland/main/install.sh | bash -s -- --with-meetings --meetings-server https://<адрес-sten>/sten
-```
 
 ### Сборка
 
